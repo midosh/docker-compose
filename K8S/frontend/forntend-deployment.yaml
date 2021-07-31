@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: goapp-frontend
+      tier: frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: goapp-frontend
+        tier: frontend
+    spec:
+      containers:
+        - name: nginx
+          image: "arsharaf/frontend:0.1"
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/usr/sbin/nginx","-s","quit"]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: goapp-frontend
+    tier: frontend
+  ports:
+  - protocol: "TCP"
+    port: 80
+    targetPort: 80
+    nodePort: 30008
+  type: NodePort
